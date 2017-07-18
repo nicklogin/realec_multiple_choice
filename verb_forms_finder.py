@@ -141,10 +141,15 @@ def find_verb_forms(w):
 
         #print(outstem)
         #print(v_forms)
-        return verb_forms_marked
+        try:
+            return verb_forms_marked
+        except UnboundLocalError:
+            empty_dict = dict()
+            return empty_dict
     
     else:
-        return []
+        empty_dict = dict()
+        return empty_dict
 
 ##while True:
 ##    print(find_verb_forms(input()))

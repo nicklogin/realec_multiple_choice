@@ -36,7 +36,7 @@ class Exercise:
         }
         os.makedirs('moodle_exercises', exist_ok=True)
         os.makedirs('processed_texts', exist_ok=True)
-        with open('./nug_needs/wordforms.json', 'r', encoding="utf-8") as dictionary:
+        with open('wordforms.json', 'r', encoding="utf-8") as dictionary:
             self.wf_dictionary = json.load(dictionary)  # {'headword':[words,words,words]}
 
 #T-mark'ами отмечены строки с ошибками, их типом и местом в тексте
@@ -80,7 +80,7 @@ class Exercise:
         """ Collect errors info """
         anns = [f for f in os.listdir(self.path_old) if f.endswith('.ann')]
         for ann in anns:
-            #print(ann)
+            print(ann)
             with open(self.path_old + ann, 'r', encoding='utf-8') as ann_file:
                 for line in ann_file.readlines():
                     self.find_errors_indoc(line)
@@ -119,30 +119,27 @@ class Exercise:
 
     # ================Write Exercises to the files=================
 
-    def find_choices(self, right, wrong): #TODO @Kate, rewrite this function #Nck rewrote this function
+    def find_choices(self, right, wrong): #TODO @Kate, rewrite this function #Nick rewrote this function
         """
         Finds two more choices for Multiple Choice exercise.
         :param right:
         :param wrong:
         :return: array of four choices (first is always right)
         """
+        choices = [right, wrong]
         verb_forms = vff.find_verb_forms(right)
         conjuctions1 = ['except', 'besides','but for']
         conjuctions2 = ['even if', 'even though', 'even']
         ##this part of code is temporary
-        verb_forms = [i for i in set(verb_forms[i] for i in verb_forms)]
-        if verb_forms:
-            choices = set(verb_forms)
+        verb_forms = set(verb_forms[i] for i in verb_forms)
+        if right in verb_forms:
+            [choices.append(i) for i in verb_forms if (i != right) and (i != wrong)]
         ##end of temporary part
         elif right in conjuctions1:
-            for i in conjuctions1:
-                choices.add(i)
+            [choices.append(i) for i in conjuctions1 if (i != right) and (i != wrong)]
         elif right in conjuctions2:
-            for i in conjuctions2:
-                choices.add(i)
-        choices.add(wrong)
-        choices = [i for i in choices]
-        choices = [right]+choices
+            [choices.append(i) for i in conjuctions2 if (i != right) and (i != wrong)]
+        choices = choices[:4]
         return choices
 
     
@@ -280,12 +277,12 @@ class Exercise:
                 all_sents += self.create_sentence_function(new_text)
         self.write_func[self.exercise_type](all_sents)
 
-        #shutil.rmtree('./processed_texts/')
+        shutil.rmtree('./processed_texts/')
 
 if __name__ == "__main__":
 
     path_to_data = './IELTS2015/'
-    e = Exercise(path_to_data, 'Tense_choice', 'multiple_choice')
+    e = Exercise(path_to_data, 'Tense_form', 'multiple_choice')
     e.make_data_ready_4exercise()
 
     e.make_exercise()

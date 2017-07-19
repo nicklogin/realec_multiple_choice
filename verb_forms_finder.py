@@ -64,7 +64,13 @@ def find_verb_forms(w):
     values = [all_forms[i] for i in all_forms]
     values = [j for i in values for j in i]
     if (w in all_forms) or (w in values):
-        word = w
+        if w in all_forms:
+            word = w
+        elif w in values:
+            for i in all_forms:
+                if  w in all_forms[i]:
+                    word = i
+                    break
         verb_forms_marked_list = []
         #небольшой велосипед, чтобы
         stem_number = 0
@@ -127,12 +133,10 @@ def find_verb_forms(w):
                     stem_number += 1
                     verb_forms_marked_list.append(verb_forms_marked)
         #print(stems)
-
+        last_coincide = 0
         for st in stems:
-            last_coincide = 0
             new_coincide = get_last_coincide(w, st)
             if new_coincide >= last_coincide:
-                #print(st)
                 last_coincide = new_coincide
                 v_forms = verb_forms[st]
                 outstem = st
@@ -151,8 +155,39 @@ def find_verb_forms(w):
         empty_dict = dict()
         return empty_dict
 
+def makeSN(form):
+    return form+"n't"
+
+def neg(verb_form):
+    dSN = 'must','should','is','was','were','are','can','could','had','did','do','should','would'
+    verb_form = verb_form.split(' ')
+    head_verb = verb_form[0]
+    have_forms = find_verb_forms('have')
+    try:
+        other_verbs = ' '.join(verb_form[1:])
+    except:
+        other_verbs = ''
+    head_verb_forms = find_verb_forms(head_verb)
+    if (head_verb in dSN) or ((head_verb in tuple(have_forms[i] for i in have_forms)) and (other_verbs)):
+        return makeSN(head_verb) + ' ' + other_verbs
+    elif head_verb_forms:
+        bare_inf_phrase = ' ' + head_verb_forms['bare_inf'] + ' ' + other_verbs
+        if head_verb == head_verb_forms['2nd']:
+            return "didn't" + bare_inf_phrase
+        elif head_verb == head_verb_forms['3SG']:
+            return "doesn't" + bare_inf_phrase
+        elif head_verb == head_verb_forms['bare_inf']:
+            return "don't" + bare_inf_phrase
+    else:
+        return head_verb + ' ' + other_verbs + ' is not a verb-starting phrase'
+        
+    
+
 ##while True:
 ##    print(find_verb_forms(input()))
+
+while True:
+    print(neg(input()))
 
         
     

@@ -3,6 +3,7 @@ from collections import defaultdict
 import shutil
 import json
 import verb_forms_finder as vff
+import simple_phrase_parser as spp
 
 """Script that generates grammar exercises from REAELEC data """
 print('started')
@@ -119,7 +120,7 @@ class Exercise:
 
     # ================Write Exercises to the files=================
 
-    def find_choices(self, right, wrong): #TODO @Kate, rewrite this function #Nick rewrote this function
+    def find_choices(self, right, wrong, new_sent): #TODO @Kate, rewrite this function #Nick rewrote this function
         """
         Finds two more choices for Multiple Choice exercise.
         :param right:
@@ -133,12 +134,25 @@ class Exercise:
         ##this part of code is temporary
         verb_forms = set(verb_forms[i] for i in verb_forms)
         if right in verb_forms:
-            [choices.append(i) for i in verb_forms if (i != right) and (i != wrong)]
+            quantifier_presence = False
+            for i in ['some', 'someone', 'somebody', 'one', 'everyone', 'everybody', 'noone', 'no-one', 'nobody', 'something', 'everything', 'nothing']:
+                if i in new_sent:
+                    quantifier_presence = True
+            if self.error_type == 'Number' and quantifier_presence:
+                neg = [vff.neg(right), vff.neg(wrong)]
+                [choices.append(i) for i in neg if i]
+            else:
+                [choices.append(i) for i in verb_forms if (i != right) and (i != wrong)]
         ##end of temporary part
         elif right in conjuctions1:
             [choices.append(i) for i in conjuctions1 if (i != right) and (i != wrong)]
         elif right in conjuctions2:
             [choices.append(i) for i in conjuctions2 if (i != right) and (i != wrong)]
+        elif 'Prepositional' in self.error_type:
+            prep = spp.find_prep(right)
+            preps = 'at', 'for', 'on'
+            variants = [spp.word_replace(right,prep,i) for i in preps]
+            [choices.append(i) for i in variants if i != right.lower() and i != wrong.lower()]
         choices = choices[:4]
         return choices
 
@@ -175,7 +189,7 @@ class Exercise:
                         answers = [right_answer]
                     elif self.exercise_type == 'multiple_choice':
                         new_sent = sent + "_______ " + other[int(index):] + '.'
-                        answers = self.find_choices(right_answer, wrong)
+                        answers = self.find_choices(right_answer, wrong, new_sent)
                     text = sent1 + '. ' + new_sent + ' ' + sent3
                     if '*' not in text:
                         good_sentences.append((text, answers))
@@ -282,7 +296,7 @@ class Exercise:
 if __name__ == "__main__":
 
     path_to_data = './IELTS2015/'
-    e = Exercise(path_to_data, 'Tense_form', 'multiple_choice')
+    e = Exercise(path_to_data, 'Prepositional_adverb', 'multiple_choice')
     e.make_data_ready_4exercise()
 
     e.make_exercise()

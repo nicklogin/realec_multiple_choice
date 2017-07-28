@@ -179,15 +179,15 @@ def neg(verb_form):
         elif head_verb == head_verb_forms['bare_inf']:
             return "don't" + bare_inf_phrase
     else:
-        return head_verb + ' ' + other_verbs + ' is not a verb-starting phrase'
+        return ''
         
     
 
 ##while True:
 ##    print(find_verb_forms(input()))
 
-while True:
-    print(neg(input()))
+##while True:
+##    print(neg(input()))
 
         
     

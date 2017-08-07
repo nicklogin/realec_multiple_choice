@@ -131,9 +131,9 @@ class Exercise:
         verb_forms = vff.find_verb_forms(right)
         conjuctions1 = ['except', 'besides','but for']
         conjuctions2 = ['even if', 'even though', 'even']
+        verb_forms_set = set(verb_forms[i] for i in verb_forms)
         ##this part of code is temporary
-        verb_forms = set(verb_forms[i] for i in verb_forms)
-        if right in verb_forms:
+        if right in verb_forms_set:
             quantifier_presence = False
             for i in ['some', 'someone', 'somebody', 'one', 'everyone', 'everybody', 'noone', 'no-one', 'nobody', 'something', 'everything', 'nothing']:
                 if i in new_sent:
@@ -142,7 +142,7 @@ class Exercise:
                 neg = [vff.neg(right), vff.neg(wrong)]
                 [choices.append(i) for i in neg if i]
             else:
-                [choices.append(i) for i in verb_forms if (i != right) and (i != wrong)]
+                [choices.append(i) for i in verb_forms_set if (i != right) and (i != wrong)]
         ##end of temporary part
         elif right in conjuctions1:
             [choices.append(i) for i in conjuctions1 if (i != right) and (i != wrong)]
@@ -151,8 +151,22 @@ class Exercise:
         elif 'Prepositional' in self.error_type:
             prep = spp.find_prep(right)
             preps = 'at', 'for', 'on'
-            variants = [spp.word_replace(right,prep,i) for i in preps]
+            variants = [right.replace(prep,i,1) for i in preps]
             [choices.append(i) for i in variants if i != right.lower() and i != wrong.lower()]
+        elif self.error_type == 'Defining':
+            gerund_form = spp.find_verb_form(right,'gerund')
+            add_forms = vff.find_verb_forms(gerund_form)
+            if gerund_form and add_forms:
+                choices.append(right.replace(gerund_form, 'being ' + add_forms['3rd'], 1))
+                continuous_form = spp.find_synth_form(right,gerund_form)
+                choices.append(right.replace(continuous_form, add_forms['2nd'], 1))
+        elif ((self.error_type == 'Choice_in_cond') or (self.error_type == 'Form_in_cond')) and ('would' in right):
+            lex_verb = spp.find_verb_form(right[right.find('would'):],'any')
+            lex_verb_forms = vff.find_verb_forms(lex_verb)
+            if lex_verb and lex_verb_forms:
+                new_choices = [lex_verb_forms['2nd'], 'would have '+lex_verb_forms['3rd'],'would '+lex_verb_forms['bare_inf']]
+                [choices.append(i) for i in new_choices if i!=right.lower() and i!=wrong.lower()]
+    return choices[:4]
         choices = choices[:4]
         return choices
 
@@ -296,7 +310,7 @@ class Exercise:
 if __name__ == "__main__":
 
     path_to_data = './IELTS2015/'
-    e = Exercise(path_to_data, 'Prepositional_adverb', 'multiple_choice')
+    e = Exercise(path_to_data, 'Choice_in_cond', 'multiple_choice')
     e.make_data_ready_4exercise()
 
     e.make_exercise()

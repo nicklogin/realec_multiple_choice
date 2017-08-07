@@ -52,7 +52,7 @@ def get_last_coincide(a,b):
 def find_verb_forms(w):
     all_forms = prepare_dictionary()
     irregular_forms = prepare_irregular_verbs()
-    be_forms = {'bare_inf':'be', '2nd':'was', '2ndPL':'were', '3rd':'been', 'gerund':'being', '1SG':'am', '1PL2SG2PL3PL':'are', '3SG':'is'}
+    be_forms = {'bare_inf':'be', '2nd':'was', '2ndPL':'were', '3rd':'been', 'gerund':'being', '1SG':'am', '1PL2SG2PL3PL':'are', '3SG':'is', 'Future':'will', 'Future-in-past':'would'}
     have_forms = {'bare_inf':'have', '2nd':'had', '3rd':'had', '3PL':'has', 'gerund':'having'}
     for key, val in be_forms.items():
         if w == val:

@@ -28,6 +28,7 @@ def find_verb_form(phrase, formname):
     ##в этом случае возвращаем последнюю аналитическую форму в составе
     ##первой встреченной синтетической
     if formname == 'any':
+        be_forms = [val for key,val in vff.find_verb_forms('be').items()]
         form_start = False
         form_end = False
         prev_token = ''
@@ -40,7 +41,10 @@ def find_verb_form(phrase, formname):
                 form_end = True
             if form_start and form_end:
                 break
-            prev_token = token
+            if (token == verb_forms['3rd']) and (prev_token in be_forms):
+                prev_token += ' '+token
+            else:
+                prev_token = token
         return str(prev_token)
 
     ##в этом случае находим первую попавшуюся аналитическую форму заданного

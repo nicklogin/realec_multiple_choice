@@ -161,12 +161,22 @@ class Exercise:
                 continuous_form = spp.find_synth_form(right,gerund_form)
                 choices.append(right.replace(continuous_form, add_forms['2nd'], 1))
         elif ((self.error_type == 'Choice_in_cond') or (self.error_type == 'Form_in_cond')) and ('would' in right):
+            choices = [right]
             lex_verb = spp.find_verb_form(right[right.find('would'):],'any')
-            lex_verb_forms = vff.find_verb_forms(lex_verb)
-            if lex_verb and lex_verb_forms:
-                new_choices = [lex_verb_forms['2nd'], 'would have '+lex_verb_forms['3rd'],'would '+lex_verb_forms['bare_inf']]
-                [choices.append(i) for i in new_choices if i!=right.lower() and i!=wrong.lower()]
-    return choices[:4]
+            if lex_verb.count(' ') == 0:
+                lex_verb_forms = vff.find_verb_forms(lex_verb)
+                if lex_verb_forms:
+                    new_choices = [lex_verb_forms['2nd'], 'would have '+lex_verb_forms['3rd'],'would '+lex_verb_forms['bare_inf']]
+            else:
+                new_choices = []
+                be_form, verb_form = lex_verb.split(' ')
+                if (be_form == 'are') or (be_form == 'were'):
+                    new_choices.append('were '+verb_form)
+                else:
+                    new_choices.append('was '+verb_form)
+                new_choices.append('would have been '+verb_form)
+                new_choices.append('would be '+verb_form)
+                [choices.append(i) for i in new_choices if i!=right and i!=wrong]
         choices = choices[:4]
         return choices
 

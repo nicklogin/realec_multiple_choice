@@ -156,10 +156,13 @@ def find_verb_forms(w):
         return empty_dict
 
 def makeSN(form):
-    return form+"n't"
+    if form == 'can':
+        return form+"'t"
+    else:
+        return form+"n't"
 
 def neg(verb_form):
-    dSN = 'must','should','is','was','were','are','can','could','had','did','do','should','would'
+    dSN = 'must','should','is','was','were','are','can','could','should','would'
     verb_form = verb_form.split(' ')
     head_verb = verb_form[0]
     have_forms = find_verb_forms('have')
@@ -167,9 +170,12 @@ def neg(verb_form):
         other_verbs = ' '.join(verb_form[1:])
     except:
         other_verbs = ''
+##    print(other_verbs)
     head_verb_forms = find_verb_forms(head_verb)
-    if (head_verb in dSN) or ((head_verb in tuple(have_forms[i] for i in have_forms)) and (other_verbs)):
+    if (head_verb in dSN) or ((head_verb in tuple(have_forms[i] for i in have_forms)) and (other_verbs != '')):
         return makeSN(head_verb) + ' ' + other_verbs
+    elif head_verb == 'am':
+        return head_verb + ' not ' + other_verbs
     elif head_verb_forms:
         bare_inf_phrase = ' ' + head_verb_forms['bare_inf'] + ' ' + other_verbs
         if head_verb == head_verb_forms['2nd']:
@@ -179,8 +185,21 @@ def neg(verb_form):
         elif head_verb == head_verb_forms['bare_inf']:
             return "don't" + bare_inf_phrase
     else:
-        return ''
-        
+        return 'not ' + str(' '.join(verb_form))
+
+def pos(neg_verb_form):
+    if neg_verb_form.count(' ')>0:
+        if 'not' in neg_verb_form:
+            return neg_verb_form.replace('not','',1)
+        else:
+            neg_verb_form = neg_verb_form.split(' ')
+            if neg_verb_form[0].endswith("n't"):
+                neg_verb_form[0] = neg_verb_form[0][:neg_verb_form[0].find("n't")]
+            neg_verb_form = str(' '.join(neg_verb_form))
+    else:
+        if neg_verb_form.endswith("n't"):
+            neg_verb_form = neg_verb_form[:neg_verb_form.find("n't")]
+    return neg_verb_form
     
 
 ##while True:
@@ -188,6 +207,9 @@ def neg(verb_form):
 
 ##while True:
 ##    print(neg(input()))
+
+##while True:
+##    print(pos(input()))
 
         
     

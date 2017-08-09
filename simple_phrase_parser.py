@@ -37,14 +37,15 @@ def find_verb_form(phrase, formname):
             if verb_forms:
                 form_start = True
                 form_end = False
+                if (token == verb_forms['3rd']) and (prev_token in be_forms):
+                    prev_token += ' '+token
+                else:
+                    prev_token = token
             else:
                 form_end = True
             if form_start and form_end:
                 break
-            if (token == verb_forms['3rd']) and (prev_token in be_forms):
-                prev_token += ' '+token
-            else:
-                prev_token = token
+        
         return str(prev_token)
 
     ##в этом случае находим первую попавшуюся аналитическую форму заданного
@@ -66,17 +67,14 @@ def find_synth_form(phrase, anal_form):
     be_forms = [val for key,val in vff.find_verb_forms('be').items()]
     have_forms =[val for key,val in vff.find_verb_forms('have').items()]
     form = ''
-    form_start = False
     for token in phrase:
         if token == anal_form:
             form += ' '+token
             break
-        elif (token in be_forms) or (token in have_forms):
-            form_start = True
+        elif (vff.pos(token) in be_forms) or (vff.pos(token) in have_forms):
             form += ' '+token
-        else:
+        elif token != 'not':
             form = ''
-            form_start = False
     form = form.strip(' ')
     return form   
 

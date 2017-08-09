@@ -156,29 +156,36 @@ class Exercise:
         elif self.error_type == 'Defining':
             gerund_form = spp.find_verb_form(right,'gerund')
             add_forms = vff.find_verb_forms(gerund_form)
-            if gerund_form and add_forms:
-                choices.append(right.replace(gerund_form, 'being ' + add_forms['3rd'], 1))
+            new_choices = []
+            if gerund_form:
                 continuous_form = spp.find_synth_form(right,gerund_form)
-                choices.append(right.replace(continuous_form, add_forms['2nd'], 1))
+                new_choices.append(right.replace(gerund_form, 'being ' + add_forms['3rd'], 1))
+                new_choices.append(right.replace(continuous_form, add_forms['2nd'], 1))
+                if ("n't" in continuous_form) or ('not' in continuous_form):
+                    new_choices = [vff.neg(i) for i in new_choices]
+                [choices.append(i) for i in new_choices if i != right and i != wrong]
         elif ((self.error_type == 'Choice_in_cond') or (self.error_type == 'Form_in_cond')) and ('would' in right):
-            choices = [right]
+            if "wouldn't" in right:
+                neg = True
             lex_verb = spp.find_verb_form(right[right.find('would'):],'any')
             if lex_verb.count(' ') == 0:
                 lex_verb_forms = vff.find_verb_forms(lex_verb)
                 if lex_verb_forms:
-                    new_choices = [lex_verb_forms['2nd'], 'would have '+lex_verb_forms['3rd'],'would '+lex_verb_forms['bare_inf']]
+                    new_choices = set([lex_verb_forms['2nd'], 'would have '+lex_verb_forms['3rd'],'would '+lex_verb_forms['bare_inf']])
             else:
-                new_choices = []
                 be_form, verb_form = lex_verb.split(' ')
+                new_choices = set()
                 if (be_form == 'are') or (be_form == 'were'):
-                    new_choices.append('were '+verb_form)
+                    new_choices.add('were '+verb_form)
                 else:
-                    new_choices.append('was '+verb_form)
-                new_choices.append('would have been '+verb_form)
-                new_choices.append('would be '+verb_form)
-                [choices.append(i) for i in new_choices if i!=right and i!=wrong]
-        choices = choices[:4]
-        return choices
+                    new_choices.add('was '+verb_form)
+                new_choices.add('would have been '+verb_form)
+                new_choices.add('would be '+verb_form)
+            if neg:
+                new_choices = [vff.neg(i) for i in new_choices]
+            new_choices = [i+right[right.find(lex_verb)+len(lex_verb):] for i in new_choices]
+            [choices.append(i) for i in new_choices if i!=right and i != wrong]
+        return choices[:4]
 
     
     def check_headform(self, word):
@@ -320,7 +327,7 @@ class Exercise:
 if __name__ == "__main__":
 
     path_to_data = './IELTS2015/'
-    e = Exercise(path_to_data, 'Choice_in_cond', 'multiple_choice')
+    e = Exercise(path_to_data, 'Defining', 'multiple_choice')
     e.make_data_ready_4exercise()
 
     e.make_exercise()

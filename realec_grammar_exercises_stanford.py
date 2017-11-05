@@ -469,7 +469,7 @@ class Exercise:
         #смотрим на то, какой массив мы передали объекту, так как отследить, какая ошибка обрабатывается сейчас мы уже не можем
         if self.error_type == ['Number']:
             quantifiers = ('some', 'someone', 'somebody', 'one', 'everyone', 'everybody', 'noone', 'no-one', 'nobody', 'something', 'everything', 'nothing')
-            if right_verb and vff.find_verb_forms(wrong.split()[0]):
+            if vff.find_verb_forms(right.split()[0]) and vff.find_verb_forms(wrong.split()[0]):
                 quant_presence = False
                 tagged_sent = self.tagger.tag(new_sent.replace('_______',right).split())
                 for i in range(len(tagged_sent)):

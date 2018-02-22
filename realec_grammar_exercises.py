@@ -474,7 +474,7 @@ class Exercise:
         #смотрим на то, какой массив мы передали объекту, так как отследить, какая ошибка обрабатывается сейчас мы уже не можем
         if self.error_type == ['Number']:
             quantifiers = ('some', 'someone', 'somebody', 'one', 'everyone', 'everybody', 'noone', 'no-one', 'nobody', 'something', 'everything', 'nothing')
-            if nltk.tag.staford(right.split()[0])[1].startswith('V') and nltk.tag.stanford([wrong.split()[0]])[1].startswith('V'):
+            if self.tagger.tag(right.split()[0])[1].startswith('V') and self.tagger.tag([wrong.split()[0]])[1].startswith('V'):
                 quant_presence = False
                 tagged_sent = self.tagger.tag(new_sent.replace('_______',right).split())
                 for i in range(len(tagged_sent)):
@@ -562,6 +562,7 @@ class Exercise:
         :return: array of good sentences. [ (sentences, [right_answer, ... ]), (...)]
         """
         good_sentences = {x:list() for x in self.exercise_types}
+	types1 = [i for i in exercise_types if i!='word_form']
         sentences = [''] + new_text.split('. ')
         i = 0
         for sent1, sent2, sent3 in zip(sentences, sentences[1:], sentences[2:]):
@@ -580,8 +581,7 @@ class Exercise:
                             answers = [right_answer]
                         except:
                             if len(self.exercise_types) > 1:
-                                while ex_type == 'word_form':
-                                    ex_type = random.choice(self.exercise_types)
+				ex_type = random.choice(types1)
                             else:
                                 continue
                     if ex_type == 'short_answer':

@@ -474,7 +474,7 @@ class Exercise:
         #смотрим на то, какой массив мы передали объекту, так как отследить, какая ошибка обрабатывается сейчас мы уже не можем
         if self.error_type == ['Number']:
             quantifiers = ('some', 'someone', 'somebody', 'one', 'everyone', 'everybody', 'noone', 'no-one', 'nobody', 'something', 'everything', 'nothing')
-            if self.tagger.tag(right.split()[0])[1].startswith('V') and self.tagger.tag([wrong.split()[0]])[1].startswith('V'):
+            if self.tagger.tag(right.split())[0][1].startswith('V') and self.tagger.tag(wrong.split())[0][1].startswith('V'):
                 quant_presence = False
                 tagged_sent = self.tagger.tag(new_sent.replace('_______',right).split())
                 for i in range(len(tagged_sent)):
